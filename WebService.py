@@ -6,8 +6,8 @@ with open('Data/flight_data.json') as json_file:
             json_data = json.load(json_file)
 
 urls = (
-    '/flightdata','data',
-    '/input','pop'
+    '/api/flightdata','data',
+    '/api/input','pop'
 )
 
 app = web.application(urls, globals())
