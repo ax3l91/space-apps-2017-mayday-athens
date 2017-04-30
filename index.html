@@ -2,54 +2,120 @@
 <head>
         <meta http-equiv="X-UA-Compatible" content="chrome=1" />
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-		<title>Trajectory from GMAT</title>
+		<title>Aviat-ions: In-flight Irradiation Simulation</title>
 		<meta name="author" content="Daniel A. O'Neil">
 		<meta name="copyright" content="? Daniel A. O'Neil" />
 	<style>
 	  p.case { clear: both; border-top: 0px; solid: #fff; }
 	</style>
 	<link rel="stylesheet" type="text/css" href="x3dom.css" />
-	<script src="missionfile.js" type="text/javascript"></script>
-	<script src="http://10.2.110.232:8080/flightdata" type="text/javascript"></script>
+	<!-- <script src="http://10.2.110.232:8080/flightdata" type="text/javascript"></script> -->
+	<!-- <script src="http://10.2.110.231:8080/api/getinfodata" type="text/javascript"></script> -->
+	<script src="./flightdata.json" type="text/javascript"></script>
+	<script src="./getinfodata.json" type="text/javascript"></script>
+	
+	<link type="text/css" rel="stylesheet" href="./rickshaw/rickshaw.min.css">
+	<script src="./rickshaw/vendor/d3.min.js"></script>
+	<script src="./rickshaw/vendor/d3.layout.min.js"></script>
+	<script src="./rickshaw/rickshaw.js"></script>
+	<link type="text/css" rel="stylesheet" href="./rickshaw_css.css">
 </head>
 <body onload="startUpdate()">
 
-<h1>Prototype Web Visualization of a GMAT Generated Trajectory</h1>
-
-	<p class="case"> 
-		<X3D xmlns="http://www.web3d.org/specifications/x3d-namespace" showStat="false" showLog="false" x="0px" y="0px" width="800px" height="600px">
+<h1>Prototype Web Visualization of an Irradiated Trajectory</h1>
+	
+	<table style="" cellpadding="5"><tbody>
+	<tr>
+	<td>
+	<p class="case" style="width: 500px; height:300px; position:relative;"> 
+		<X3D xmlns="http://www.web3d.org/specifications/x3d-namespace" showStat="false" showLog="false" x="0px" y="0px" width="500px" height="300px">
           <Scene>
+			<navigationInfo type="TURNTABLE"></navigationInfo>
 			<background DEF='bgnd' transparency='0' skyColor='0.0 0.0 0.0' ></background>
-	   <Transform id="theEarth" translation="0 0 0">
-              <Shape>
+			<Transform id="theEarth" translation="0 0 0">
+				<Shape>
                 <Appearance>
                     <ImageTexture url='EarthImage.jpg'/>					
                 </Appearance>
                 <Sphere radius='0.65'/>
-             </Shape>
-		   </Transform> 
-		   <Viewpoint fieldOfView="0.785398" position="1 1.0 1.5" orientation="1 -1 0 -0.7"  description=""/>
+				</Shape>
+				<!--
+				<Shape>
+                <Appearance>
+                    <Material id='PlaneMat' diffuseColor='.8 .8 0' emissiveColor='.8 .8 0'/>					
+                </Appearance>
+                
+				</Shape>
+				-->
+			</Transform> 
+		   <Viewpoint id='theViewpoint' fieldOfView="0.785398" position="-2 0 0" orientation="0 1 0 -1.57"  description=""/>
           </Scene>
         </X3D>
+		<!--<span style="position:absolute; left:0; top:0; width:100%; height:100%; color:red;" onmouseover="console.log(arguments);GlobeMouseOver.call(this,arguments);">LOLOL</span>
+		-->
     </p>
+	</td>
 	
-	<p class="case" align="center">
+	<td>
+	<div style="position:relative;">
+	
+	<img src="./aurora_map.png" width=500 style='text-align: center;'/>
+	<!--<canvas id="under" width="500" height="350"></canvas>-->
+	<img src="./plane_topview.png" style="position:absolute;" width="20px" height="20px" id="plane_topview"/>
+	
+	</div>
+	</td>
+	</tr>
+	
+	<tr>
+	<td>
+	<div id="chart_container">
+		<div id="y_axis"></div>
+		<div id="chart"></div>
+		<div id="x_axis"></div>
+		<div class="detail">
+			<img id="plane_dot" class=" rickshaw_graph" src="./plane_sideview.png" style="position:absolute;" width="20px" height="20px"/>
+		</div>
+	</div>
+	</td>
+	
+	<td>
+	MEknics frobunized: 667
+	<br>
+	MEknics frobunzed: 667
+	<br>
+	Time to live : -4 38,7 672 * 390
+	<br>
+	</td>
+	
+	</tr>
+	</tbody></table>
+	
+	
+	<p class="case" align="center"></p>
+
+	
+	<div id="legend"></div>
+	
 	
 	<p id="demo"></p>
 
-<script>
+	<script>
 /*
-add first person view
 add callout with XYZ position
-add live graph with plaay pause
 
 5 mSv per year - 1 mSv per flight limits
+radiation rate in globe
 
+fix the swatch swatch.style.backgroundColor = series.color; with dom
 
-move material back to  whole line or sth
+0.002 mSv/h
+
+http://edutechwiki.unige.ch/en/X3D_navigation_and_viewing
+
 */
-var mission = JSON.parse(trajectory) ;    // Parse the trajectory in the mission file.
-var step = 0 ;
+//var mission = JSON.parse(trajectory) ;    // Parse the trajectory in the mission file.
+//var step = 0 ;
 
 colmap = [
 	{v: 0, c: hexToRgb("#240500")},
@@ -57,12 +123,15 @@ colmap = [
 	{v: 1, c: hexToRgb("#00413B")},
 ];
 
+theta = 0;
+
 sim_playback = {
 	current_time: 0,
 	speed: 1,
 	total_duration: 0,
 	playing: false,
 	timing_interval: null,
+	finished: false,
 	
 	Init:function(duration){
 		this.current_time = 0;
@@ -73,12 +142,14 @@ sim_playback = {
 	
 	SetToStart:function(){
 		this.current_time = 0;
+		this.finished = false;
 	},
 	
 	MoveForward: function(dt){
 		this.current_time += dt;
 		if(this.current_time >= this.total_duration){
 			this.current_time = this.total_duration;
+			this.finished = true;
 			this.Pause();
 			return false;
 		}
@@ -99,10 +170,23 @@ sim_playback = {
 function startUpdate() {
 	//transform teh data
 	linedata = new Array();
+	var lon_unwrapping = 0;
 	for (var segidx = 0; segidx < flightdata.nodes.length; segidx++) {
 		var node = flightdata.nodes[segidx];
 		var lat = node.lat  * (Math.PI / 180);
-		var lon = node.lon * (Math.PI / 180);
+		var lon = node.lon * (Math.PI / 180) + lon_unwrapping;
+		if(segidx < flightdata.nodes.length - 1){
+			var lon2 = flightdata.nodes[segidx+ 1].lon * (Math.PI / 180) + lon_unwrapping;
+			if(lon2 - lon > Math.PI) lon_unwrapping -= 2 * Math.PI;
+			if(lon - lon2 > Math.PI) lon_unwrapping += 2 * Math.PI;
+		}
+		
+		var node2 = planedata[segidx];
+		
+		var rad_rate = parseFloat(node2.Radiance)/10000;
+		var rad_total = parseFloat(node2.CummulativeRadiance) / 10000;
+		var distance_total = parseFloat(node2.Distance);
+		
 		//lon = 0;
 		//lat = Math.PI / 2;
 		var z = 0.6505 * Math.cos(lat)*Math.cos(lon);
@@ -111,7 +195,7 @@ function startUpdate() {
 		//x = 1*0*.7;
 		//y = 1*.7;
 		//z = 1*.7;
-		linedata[segidx] = {x:x, y:y, z:z, val: segidx / mission.coordinates.length, time:  10 * segidx / mission.coordinates.length };
+		linedata[segidx] = {x:x, y:y, z:z, lat:lat, lon:lon, rad_rate:rad_rate, rad_total:rad_total, distance_total:distance_total, time:  (10 / 10000) * distance_total };
 	}
 	sim_playback.Init( linedata[linedata.length - 1].time);
 		
@@ -144,7 +228,7 @@ function startUpdate() {
 		var line = document.createElement('IndexedLineSet');
         //line.setAttribute("coordIndex", segIndex);
 		var col = document.createElement('Color');
-		var cocol = rgbToNum(colour_lerp_spline(segidx / mission.coordinates.length, colmap));
+		var cocol = rgbToNum(colour_lerp_spline(p.rad_rate, colmap));
 		//console.log(cocol +", "+ cocol);
 		//cocol = 1 + " " + 0 + " " + 0 + ", "+ 1 + " " + 0 + " " + 0;	
 		col.setAttribute("color", cocol +", "+ cocol );
@@ -160,38 +244,133 @@ function startUpdate() {
 		
 		segIndex = segIndex + 1 ;		
 	 }
-  
-    //-----------------------------
+
+	//-----------------------------
 	//  Create a satellite model 
 	//----------------------------
-	 var pos = [mission.coordinates[0].X/10000, mission.coordinates[0].Y/10000, mission.coordinates[0].Z/10000] 
-	  var t = document.createElement('Transform');
-        t.setAttribute("translation", pos[0] + " " + pos[1] + " " + pos[2] );
-        t.setAttribute("id", 'satPosition');
-		
-		var satellite = document.createElement('Shape');        // Shape Node for satellite
-		satellite.setAttribute("id", "satellite");
+	var pos = lerpTrajectory(0);
+	var t = document.createElement('Transform');
+	t.setAttribute("translation", pos.x + " " + pos.y + " " + pos.z );
+	t.setAttribute("id", 'satPosition');
 
-		var satapp = document.createElement('Appearance');     // Appearance Node
-		var satmat = document.createElement('Material');       // Material Node
-		   satmat.setAttribute("id", "SatMat");
-		   satmat.setAttribute("diffuseColor", 0 + " " + 1 + " " + 0);
-		   satmat.setAttribute("emissiveColor", 0 + " " + 1 + " " + 0.3);
-		satapp.appendChild(satmat);
-		satellite.appendChild(satapp);
-		
-		var satmodel = document.createElement('Box');
-		satmodel.setAttribute("size", 0.2 + " " + 0.2 + " " + 0.2);
-		// satellite.setAttribute("id", "sat1");
-		satellite.appendChild(satmodel);
-		t.appendChild(satellite) ;
-		
-		var objsat = document.getElementById('theEarth');
-        objsat.appendChild(t);
+	var satellite = document.createElement('Shape');        // Shape Node for satellite
+	satellite.setAttribute("id", "satellite");
 
-		sim_playback.Play();
-   };
+	var satapp = document.createElement('Appearance');     // Appearance Node
+	var satmat = document.createElement('Material');       // Material Node
+	   satmat.setAttribute("id", "SatMat");
+	   satmat.setAttribute("diffuseColor", 0 + " " + 1 + " " + 0);
+	   satmat.setAttribute("emissiveColor", 0 + " " + 1 + " " + 0.3);
+	satapp.appendChild(satmat);
+	satellite.appendChild(satapp);
 
+	var satmodel = document.createElement('Box');
+	satmodel.setAttribute("size", 0.1 + " " + 0.1 + " " + 0.1);
+	// satellite.setAttribute("id", "sat1");
+	satellite.appendChild(satmodel);
+	t.appendChild(satellite) ;
+
+	var objsat = document.getElementById('theEarth');
+	objsat.appendChild(t);
+
+	initGraph();
+
+	sim_playback.Play();
+	};
+
+function initGraph(){
+	//
+	//
+	//Create the graph
+	var palette = new Rickshaw.Color.Palette();
+
+	radiation_data = new Array();
+	for(var i = 0; i < linedata.length; i++){
+		radiation_data[i] = {x:linedata[i].time, y:linedata[i].rad_total};
+	}
+	var graph_col = "rgba(0,0,0,.2)";//palette.color();
+	//console.log(graph_col);
+
+	radiation_graph = new Rickshaw.Graph( {
+		element: document.querySelector("#chart"),
+		width: 400,
+		height: 150,
+		renderer: 'multi',
+		series: [
+			{
+				name: "Total Dosage",
+				data: radiation_data,
+				//color: graph_col,
+				color: "url(#colorline)",
+				renderer:"line",
+				//strokeWidth:22,
+				//stroke: "#aabbaa",
+				//stroke: "url(#colorline)",
+				
+			},
+			{
+				name: "Dosage Limit",
+				data: [{x:0, y:.6},{x: sim_playback.total_duration,y:.6}],
+				color: "rgba(204, 31, 0, .8)",
+				renderer: "line",
+				
+				//disabled:true
+			},
+		]
+	} );
+
+	var x_axis = new Rickshaw.Graph.Axis.X( {
+		graph: radiation_graph,
+		tickFormat:function(val){return val.toFixed(0) + " km"},
+		orientation: "bottom",
+		element: document.getElementById('x_axis'),
+	} );
+
+	var y_axis = new Rickshaw.Graph.Axis.Y( {
+		graph: radiation_graph,
+		orientation: 'left',
+		tickFormat: function(val){ return val.toFixed(1) + " mSv"},
+		element: document.getElementById('y_axis'),
+	} );
+
+	var legend = new Rickshaw.Graph.Legend( {
+		element: document.querySelector('#legend'),
+		graph: radiation_graph
+	} );
+
+	var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+		graph: radiation_graph	,
+		xFormatter: function(x) { return '<span class="date">' +  x.toFixed(2) + " sec" + '</span>'},
+		yFormatter: function(y) { return y.toFixed(2) + " mSv" },
+		
+	} );
+
+	radiation_graph.render();
+
+	FixupSVGWidgies();
+}
+function FixupSVGWidgies(){
+	var radiation_graph_svg = radiation_graph.vis[0][0];
+	//console.log(radiation_graph);
+	//console.log(radiation_graph_svg);
+	var new_gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+	new_gradient.setAttribute("id", "colorline");
+	new_gradient.setAttribute("x1", "0%");
+	new_gradient.setAttribute("y1", "100%");
+	new_gradient.setAttribute("y2", "0%");
+	new_gradient.setAttribute("x2", "0%");
+	new_gradient.innerHTML = (
+		'<stop offset="0%" style="stop-color:rgb(255,255,0);stop-opacity:1" />'
+		+'<stop offset="100%" style="stop-color:rgb(255,0,0);stop-opacity:1" />'
+	);
+	//console.log(new_gradient);
+	radiation_graph_svg.appendChild(new_gradient);
+	
+	//var radiation_path = radiation_graph_svg.getElementsByTagName('g')[0].getElementsByTagName('path')[0];
+	//console.log(radiation_path)
+	
+	
+}
 function lerpTrajectory(time){
 	var m = linedata;
 	var ret = m[0];
@@ -203,51 +382,139 @@ function lerpTrajectory(time){
 		var c1 = m[i-1];
 		var c2 = m[i];
 		var f = (time - m[i-1].time)/(m[i].time - m[i-1].time);
-		ret = {
-			x: lerp(c1.x,c2.x,f),
-			y: lerp(c1.y,c2.y,f),
-			z: lerp(c1.z,c2.z,f),
-			val: lerp(c1.val,c2.val,f)
-		};
+		var lerpables = ['x', 'y', 'z', 'lat', 'lon', 'distance_total', 'rad_rate', 'rad_total'];
+		var ret = {};
+		for(let ler of lerpables){
+			ret[ler] = lerp(c1[ler],c2[ler],f);
+		}
 	}
 	return ret;
 }
-
-function updateDisplay(){
-	if(sim_playback.playing){
-		var ret = sim_playback.MoveForward(0.05);
-		if(!ret){
-			console.log(444);
-			sim_playback.Pause();
-		}
-	}
-	var lerped = lerpTrajectory(sim_playback.current_time);
+function updateModelTime(time){
+	var lerped = lerpTrajectory(time);
 	//console.log(sim_playback.current_time);
 	//console.log(lerped);
-	if(!mission.coordinates[step]) return;
+	//if(!lerped) return;
 	  var Xpos = lerped.x ;
 	  var Ypos = lerped.y ;
 	  var Zpos = lerped.z ;
       document.getElementById('satPosition').setAttribute('translation', Xpos + " " + Ypos + " " + Zpos);
 	  //console.log("x  " + Xpos + "  y  " + Ypos + "  z  " + Zpos) ;
 		
-	document.getElementById("demo").innerHTML = "<p>" + "<H2>" +"  Time: " + lerped.time + "</H2>" + "<p>"
+	//document.getElementById("demo").innerHTML = "<p>" + "<H2>" +"  Time: " + lerped.time + "</H2>" + "<p>"
+	//radiation_graph.series[3].data = {x: , y: lerped.val} ;
+	//radiation_graph.render();
+	var graph = radiation_graph;
+	
+	var dot = document.getElementById('plane_dot');
+	//dot.className = 'dot';
+	//console.log(graph.y(lerped.val) + 'px');
+	dot.style.top = graph.y(lerped.rad_total) - 10 - 5 + 'px';
+	dot.style.left = graph.x(time) + 50  - 10 - 5+ 'px';
+	//dot.style.borderColor = "black";
+	//dot.className = 'dot active';
+	
+	console.log(lerped.lat, lerped.lon);
+	var top = document.getElementById('plane_topview');
+	
+	var lon_cycles = ((1 *lerped.lon)/(2*Math.PI));
+	if(lon_cycles < 0) lon_cycles += -(lon_cycles | 0) + 1;
+	if(lon_cycles > 1) lon_cycles += (lon_cycles | 0);
+	
+	var lat_cycles = (Math.PI - lerped.lat)/(2*Math.PI);
+	console.log(lat_cycles,lon_cycles);
+	top.style.top = lat_cycles * 261  + 7   - 21 + 'px';
+	top.style.left = lon_cycles * 447   + 38 +  - 21 + 'px';
+	
+	top.style.display = "visible";
+	//top.style.display = "hidden";
+	
+	
+	var ll1 = lerpTrajectory(time - 0.05);
+	var ll2 = lerpTrajectory(time + 0.05);
+	top.style.transform = (
+		"rotate(" + (-Math.atan2(ll2.lat - ll1.lat, ll2.lon - ll1.lon)*(180/Math.PI) + 90) + "deg)"
+	);
+	
+	var p = (1 * Math.sin(theta));
+	//console.log(p);
+	
+	//theta = 0;
+	var th = 0*(+theta) - Math.PI/2;
+	//th = - Math.PI  + Math.PI/ 2;
+	
+	
+	var ori =  0 + " " + 1 + " " + 0 + " " + (+Math.PI/2 + th + 0 *0.6 * Math.sin(th));
+	var pos = (+2 * Math.cos(-th)) + " " + 0 + " " + (+2 * Math.sin(-th)) + " ";
+	//console.log(ori);
+	//console.log(pos);
+	//document.getElementById('theViewpoint').setAttribute('orientation',ori );
+	//document.getElementById('theViewpoint').setAttribute('position',  pos);
+	/**/
+	
+	var tth = +theta;
+	var ori =  1 + " " + 0 + " " + 0 + " " + ( - tth + 0 *0.6 * Math.sin(tth));
+	var pos =  0 + " " + (+2 * Math.sin(tth)) + " " + (+2 * Math.cos(-tth)) + " ";
+	//console.log(ori);
+	//console.log(pos);
+	//document.getElementById('theViewpoint').setAttribute('orientation',ori );
+	//document.getElementById('theViewpoint').setAttribute('position',  pos);
+	
+	theta = (theta + 0.001) || 0;
+	//FixupSVGWidgies();
+}
+function updateDisplay(){
+	if(sim_playback.playing){
+		var ret = sim_playback.MoveForward(0.05);
+		if(!ret){
+			console.log(444);
+			//sim_playback.Pause(); automatically
+			document.getElementById("play_pause").innerHTML = "Replay";
+		}
+	}
+	updateModelTime(sim_playback.current_time);
+ };
+ 
+ function playPause(){
+	//	console.log(mah_lab.leds);
+	if(sim_playback.playing){
+		//pause animation
+		sim_playback.Pause();
+		updateModelTime(sim_playback.current_time);
+		
+		document.getElementById("play_pause").innerHTML = "Play";
+	}
+	else{
+		if(sim_playback.finished){
+			//rewind
+			sim_playback.SetToStart();
+			updateModelTime(sim_playback.current_time);
+		}
+		//start animation
+		sim_playback.Play();
+		
+		document.getElementById("play_pause").innerHTML = "Pause";
+	}
+ }
 
-	step = step + 1 ;
- }; 
- /*
  function resetPosition() {
-    step = 0 ;
-	pos = [mission.coordinates[step].X/10000, mission.coordinates[step].Y/10000, mission.coordinates[step].Z/10000] ;
-	  var Xpos = pos[0] ;
-	  var Ypos = pos[1] ;
-	  var Zpos = pos[2] ;
-      document.getElementById('satPosition').setAttribute('translation', Xpos + " " + Ypos + " " + Zpos);
-	  
-	  setInterval(function () {updatePosition() }, 60);
+	//rewind
+	sim_playback.SetToStart();
+	updateModelTime(sim_playback.current_time);
+	sim_playback.Pause();
+	
  } ;
  
- */
+ /* */
+
+function GlobeMouseOver(event){
+
+}
+
+
+
+ 
+ //------> Auxiliars
 function colour_lerp_spline(val,colmap){
 	//Colour Lerp Spline
 	var m = colmap;
@@ -266,7 +533,6 @@ function colour_lerp_spline(val,colmap){
 	var new_col = rgbToHex(ret.r,ret.g,ret.b);
 	return new_col;
 }
-
 //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 function hexToRgb(hex) {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -289,6 +555,6 @@ function lerp(a,b,ratio){
  </script>
 <script type="text/javascript" src="x3dom.js"></script>
 <input type="button" id="reset" value="Reset" onclick="resetPosition();" />
-<input type="button" id="play_pause" value="Play" onclick="playPause();" />
+<button type="button" id="play_pause" onclick="playPause();" style="min-width: 100;">Play</button>
 </body>
 </html>
