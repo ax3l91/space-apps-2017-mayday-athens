@@ -34,6 +34,7 @@ In order to create the web application the following libraries were used:
 If you want to run the [Kp.ipynb] calculation outside of github you will need the following python modules:
 - aacgmv2
 - basemap
+Additionally the script requires wget in order to download current NASA data.
 
    [X3dom]: <https://www.x3dom.org/>
    [Rickshaw]: <https://github.com/shutterstock/rickshaw>

@@ -1,0 +1,41 @@
+#chart_container {
+	position: relative;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+}
+#chart {
+	display: inline-block;
+	margin-left: 50px;
+}
+#y_axis {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 50px;
+	background: none;
+}
+#x_axis {
+	position: relative;
+	left: 50px;
+	height: 40px;
+}
+#legend {
+	display: inline-block;
+	vertical-align: top;
+	margin: 0 0 0 10px;
+}
+.path .colorline {                         
+	/*fill: none;*/                 
+	/*stroke: url(#line-gradient);*/    
+	/*stroke-width: 22px;*/
+	/*stroke:#aabbcc;*/
+}
+.rickshaw_graph .detail {
+	/*background: none;*/
+}
+
+#legend { background: white }
+#legend .line { color: #333 }
+#plane_dot {position:absolute; width:30px; height:30px; background-color:none;}
+	
+	
