@@ -1,6 +1,6 @@
 # Space Apps Challenge: Mayday, Mayday, Mayday!
 
-Prototype application in Python which calculates and visualizes the radiation a crew member or passenger will receive in a polar or near-polar flight. It takes into consideration all factors explained in the document (.pdf)
+Prototype application in Python which calculates and visualizes the radiation a crew member or passenger will receive in a polar or near-polar flight. It takes into consideration our analysis, of how solar energetic particles and cosmic rays dynamically interact with earth's magnetic field and atmosphere, explained in the documentation []. (.pdf)
 
 # Simulation
 The simulation is being done in [Kp.ipynb] which:
