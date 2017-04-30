@@ -6,9 +6,9 @@ import os
 
 
 urls = (
-    '/flightdata','getFlightData',
-    '/getdata','getData',
-    '/getinfodata','getInfoData'
+    '/api/flightdata','getFlightData',
+    '/api/getdata','getData',
+    '/api/getinfodata','getInfoData'
 )
 
 app = web.application(urls, globals())
