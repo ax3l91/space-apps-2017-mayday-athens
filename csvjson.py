@@ -6,9 +6,9 @@ import json
 
 #Get Command Line Arguments
 def main(argv):
-    input_file = 'Data/data.csv'
-    output_file = 'Data/test.json'
-    format = 'pretty'
+    input_file = ''
+    output_file = ''
+    format = ''
     try:
         opts, args = getopt.getopt(argv,"hi:o:f:",["ifile=","ofile=","format="])
     except getopt.GetoptError:
@@ -40,7 +40,7 @@ def read_csv(file, json_file, format):
 def write_json(data, json_file, format):
     with open(json_file, "w") as f:
         if format == "pretty":
-            f.write(json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '),encoding="utf-8",ensure_ascii=False))
+            f.write(json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '),encoding="ASCII",ensure_ascii=False))
         else:
             f.write(json.dumps(data))
 
