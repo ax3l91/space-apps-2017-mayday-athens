@@ -1,6 +1,6 @@
 # Space Apps Challenge: Mayday, Mayday, Mayday!
 
-Prototype application in Python which calculates and visualizes the radiation a crew member or passenger will receive in a polar or near-polar flight. It takes into consideration our analysis, of how solar energetic particles and cosmic rays dynamically interact with earth's magnetic field and atmosphere, explained in the documentation []. (.pdf)
+Prototype application in Python which calculates and visualizes the radiation a crew member or passenger will receive in a polar or near-polar flight. It takes into consideration our analysis, of how solar energetic particles and cosmic rays dynamically interact with earth's magnetic field and atmosphere, explained in the documentation [MaydayMaydayMayday.pdf].
 
 # Simulation
 The simulation is being done in [Kp.ipynb] which:
@@ -41,3 +41,4 @@ Additionally the script requires GNU/Wget in order to download current NASA data
    [Rickshaw]: <https://github.com/shutterstock/rickshaw>
    [Kp.ipynb]: <https://github.com/ax3l91/space-apps-2017-mayday-athens/blob/master/Kp.ipynb>
    [index.html]: <https://github.com/ax3l91/space-apps-2017-mayday-athens/blob/master/index.html>
+   [MaydayMaydayMayday.pdf]: <https://github.com/ax3l91/space-apps-2017-mayday-athens/blob/master/MaydayMaydayMayday.pdf>
