@@ -1,0 +1,48 @@
+#chart_container {
+	position: relative;
+	display: inline-block;
+	font-family: Arial, Helvetica, sans-serif;
+}
+#chart {
+	display: inline-block;
+	margin-left: 70px;
+}
+#y_axis {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 70px;
+	background: none;
+	max-height:170px;
+}
+#x_axis {
+	max-width:500px;
+	position: relative;
+	left: 70px;
+	height: 40px;
+}
+#legend {
+	display: inline-block;
+	vertical-align: top;
+	margin: 0 0 0 10px;
+	position:absolute;
+	left:70px;
+	top:-10px;
+}
+.path .colorline {                         
+	/*fill: none;*/                 
+	/*stroke: url(#line-gradient);*/    
+	/*stroke-width: 22px;*/
+	/*stroke:#aabbcc;*/
+}
+.rickshaw_graph .detail {
+	/*background: none;*/
+}
+
+#legend { background: none }
+#legend .line { color: #333 }
+#plane_dot {position:absolute; width:30px; height:30px; background-color:none;}
+	
+.goodnews {color: #16992E; }
+.badnews {color: #DB2A20;}
+.radiation {color: #FF5A19;}
