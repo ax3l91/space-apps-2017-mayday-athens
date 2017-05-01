@@ -17,7 +17,7 @@ Provides Output:
 - Physical Simulation in 3D World Model
 
 # Visualization
-The visualization given at [Kp.ipynb] provides a first level of visualization. The [index.html] file provides a front end that pulls the simulation data and visualizes them in a user friendly way.
+The visualization given at [Kp.ipynb] provides a first level of visualization. The [index.html] file provides a front end that pulls the simulation data and visualizes them in a user friendly way. For a working draft of the Web Application you can go to [maydayapp.ddns.net].
 
 The visualization in the html file is split in four parts.
   - 3D visualization of the globe with the simulated flight path pseudo-colored according to the radiation intensity at each point.
@@ -42,3 +42,4 @@ Additionally the script requires GNU/Wget in order to download current NASA data
    [Kp.ipynb]: <https://github.com/ax3l91/space-apps-2017-mayday-athens/blob/master/Kp.ipynb>
    [index.html]: <https://github.com/ax3l91/space-apps-2017-mayday-athens/blob/master/index.html>
    [MaydayMaydayMayday.pdf]: <https://github.com/ax3l91/space-apps-2017-mayday-athens/blob/master/MaydayMaydayMayday.pdf>
+   [maydayapp.ddns.net]: <http://maydayapp.ddns.net>
