@@ -19,9 +19,9 @@ rcParams['figure.figsize'] = (11., 6)
 
 from os import system
 
-system("wget 'http://legacy-www.swpc.noaa.gov/wingkp/wingkp_list.txt' -P Data/")
-system("wget 'http://services.swpc.noaa.gov/text/aurora-nowcast-map.txt' -P Data/ ")
-system("wget 'http://services.swpc.noaa.gov/text/goes-particle-flux-primary.txt' -P Data/")
+#system("wget 'http://legacy-www.swpc.noaa.gov/wingkp/wingkp_list.txt' -P Data/")
+#system("wget 'http://services.swpc.noaa.gov/text/aurora-nowcast-map.txt' -P Data/ ")
+#system("wget 'http://services.swpc.noaa.gov/text/goes-particle-flux-primary.txt' -P Data/")
 
 def H(lon,lat,zone='ion'):
     D={'tropo':[20.,7.],'strato':[50.,17.5],'meso':[85.,29.7],'ion':[100.,35.]}
@@ -127,7 +127,10 @@ m.drawparallels(np.arange(-80,81,30),labels=[1,1,0,0])
 #m.drawparallels([maxphi,-maxphi],labels=[1,1,0,0])
 m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
 #M=Dose(X,Y,f1,f2,f3)
-cm=m.contourf(X,Y,DoseMap,latlon=True,alpha=0.75,cmap='gist_gray_r',levels=np.linspace(DoseMap.min(),DoseMap.max()))
+if DoseMap.max()>DoseMap.min():
+    cm=m.contourf(X,Y,DoseMap,latlon=True,alpha=0.75,cmap='gist_gray_r',levels=np.linspace(DoseMap.min(),DoseMap.max()))
+else:
+    print("Not enough flux to penetrate")
 #plt.colorbar(cm)
 m.plot(flon,flat,latlon=True,linewidth=2.)
 m.plot(m.shiftdata(mlonN, mlatN)[0],m.shiftdata(mlonN, mlatN)[1],latlon=True,linewidth=2)
@@ -145,9 +148,9 @@ format = ''
 def write_json(data, json_file, format):
     with open(json_file, "w") as f:
         if format == "pretty":
-            f.write(json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '),encoding="ASCII",ensure_ascii=False))
+            f.write('planedata='+json.dumps(data, sort_keys=False, indent=4, separators=(',', ': '),encoding="ASCII",ensure_ascii=False))
         else:
-            f.write(json.dumps(data))
+            f.write('planedata='+json.dumps(data))
 #Read CSV File
 def read_csv(file, json_file, format):
     csv_rows = []
