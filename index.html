@@ -10,7 +10,7 @@
 	</style>
 	<link rel="stylesheet" type="text/css" href="./thirdparty/x3dom.css" />
 	<!-- <script src="http://10.2.110.232:8080/flightdata" type="text/javascript"></script> -->
-	 <!--<script src="http://10.2.110.231:8080/api/getinfodata" type="text/javascript"></script> -->
+	<!--<script src="http://10.2.110.231:8080/api/getinfodata" type="text/javascript"></script> -->
 	<!--<script src="./flightdata.json" type="text/javascript"></script>-->
 	<script src="./Data/getinfodata_local.json" type="text/javascript"></script>
 	
@@ -120,11 +120,6 @@
 	</td>
 	</tr>
 	</tbody></table>
-	
-	
-	<p class="case" align="center"></p>
-	
-	<p id="demo"></p>
 
 	<script>
 /*
@@ -289,11 +284,11 @@ function startUpdate() {
 		{rad: 2000,desc: "the average yearly dose from natural sources" , shortdesc:"Yearly natural"},
 	];
 	
-	//lowra;
+	lowra = null;
 	for(var i = 0; i <total_radiations.length; i++){
 		if(total_radiations[i].rad < final_radiation) lowra = total_radiations[i];
 	}
-	//var hira;
+	hira = null;
 	for(var i = total_radiations.length-1; i >= 0 ; i--){
 		if(total_radiations[i].rad > final_radiation) hira = total_radiations[i];
 	}
@@ -439,7 +434,9 @@ function lerpTrajectory(time){
 		var f = (time - m[i-1].time)/(m[i].time - m[i-1].time);
 		var lerpables = ['x', 'y', 'z', 'lat', 'lon', 'distance_total', 'rad_rate', 'rad_total', 'time'];
 		var ret = {};
-		for(let ler of lerpables){
+		
+		for(var i = 0; i < lerpables.length; i++){
+			var ler = lerpables[i];
 			ret[ler] = lerp(c1[ler],c2[ler],f);
 		}
 	}
