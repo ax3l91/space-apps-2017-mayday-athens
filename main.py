@@ -19,9 +19,9 @@ rcParams['figure.figsize'] = (11., 6)
 
 from os import system
 
-#system("wget 'http://legacy-www.swpc.noaa.gov/wingkp/wingkp_list.txt' -P Data/")
-#system("wget 'http://services.swpc.noaa.gov/text/aurora-nowcast-map.txt' -P Data/ ")
-#system("wget 'http://services.swpc.noaa.gov/text/goes-particle-flux-primary.txt' -P Data/")
+system("wget 'http://legacy-www.swpc.noaa.gov/wingkp/wingkp_list.txt' -P Data/")
+system("wget 'http://services.swpc.noaa.gov/text/aurora-nowcast-map.txt' -P Data/ ")
+system("wget 'http://services.swpc.noaa.gov/text/goes-particle-flux-primary.txt' -P Data/")
 
 def H(lon,lat,zone='ion'):
     D={'tropo':[20.,7.],'strato':[50.,17.5],'meso':[85.,29.7],'ion':[100.,35.]}
@@ -101,11 +101,13 @@ rad=interp1d(dist,prob)
 plt.plot(dist,rad(dist))
 plt.ylabel('Dose (mSv)')
 plt.xlabel('Distance (km)')
+plt.tight_layout()
 plt.savefig('ExportedImages/Dose.png')
 
 plt.plot(dist,np.cumsum(rad(dist)))
 plt.ylabel('Integrated Dose (mSv)')
 plt.xlabel('Distance (km)')
+plt.tight_layout()
 plt.savefig('ExportedImages/integratedDose.png')
 
 DoseMap=np.array([[Dose(x,y,f1,f2,f3) for x in lons[::1]] for y in lats[::1]])
@@ -138,8 +140,23 @@ m.plot(m.shiftdata(mlonS, mlatS)[0],m.shiftdata(mlonS, mlatS)[1],latlon=True,lin
 fig.savefig('ExportedImages/DosePlanet.png')
 
 
+aurora=np.loadtxt('Data/aurora-nowcast-map.txt')
 
-#Get Command Line Arguments
+plt.figure(figsize=(13.3, 10))
+clats=512
+clons=1024
+cclats=np.linspace(-90,90,clats)
+cclons=np.linspace(0,360,clons)
+Xc,Yc=np.meshgrid(cclons,cclats)
+mm=Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='merc')
+mm.drawcoastlines(linewidth=0.7)
+mm.fillcontinents(color='#cc9966',lake_color='#99ffff',alpha=0.3)
+mm.contourf(Xc,Yc,aurora,latlon=True,cmap='gist_gray_r')
+mm.plot(flon,flat,latlon=True)
+plt.tight_layout()
+plt.savefig('ExportedImages/aurora.png')
+
+
 input_file = 'Data/data.csv'
 output_file = 'Data/getinfodata_local.json'
 format = ''
