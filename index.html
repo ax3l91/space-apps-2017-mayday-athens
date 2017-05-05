@@ -307,7 +307,7 @@ function initGraph(){
 
 	radiation_data = new Array();
 	for(var i = 0; i < linedata.length; i++){
-		radiation_data[i] = {x:linedata[i].time, y:linedata[i].rad_total * 1000000};
+		radiation_data[i] = {x:linedata[i].distance_total, y:linedata[i].rad_total * 1000000};
 	}
 	var graph_col = "rgba(0,0,0,.2)";//palette.color();
 	//console.log(graph_col);
@@ -376,7 +376,7 @@ function initGraph(){
 
 	var hoverDetail = new Rickshaw.Graph.HoverDetail( {
 		graph: radiation_graph	,
-		xFormatter: function(x) { return '<span class="date">' +  x.toFixed(2) + " sec" + '</span>'},
+		xFormatter: function(x) { return '<span class="date">' +  x.toFixed(0) + " km" + '</span>'},
 		yFormatter: function(y) { return y.toFixed(2) + " mSv" },
 		
 	} );
@@ -469,7 +469,7 @@ function updateModelTime(time){
 	//dot.className = 'dot';
 	//console.log(graph.y(lerped.val) + 'px');
 	dot.style.top = graph.y(lerped.rad_total * 1000000) - 10 - 5 + 'px';
-	dot.style.left = graph.x(time) + 70  - 10 - 5+ 'px';
+	dot.style.left = graph.x(lerped.distance_total) + 70  - 10 - 5+ 'px';
 	//dot.style.borderColor = "black";
 	//dot.className = 'dot active';
 	dot.style.visibility = "visible";
