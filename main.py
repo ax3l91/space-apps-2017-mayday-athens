@@ -1,15 +1,16 @@
+#!/bin/env python
 import numpy as np
 import matplotlib.pyplot as plt
 import sys, getopt
 import csv
 import json
 
-sys.path.append('/usr/lib/python2.7/dist-packages/mpl_toolkits/basemap')
 from mpl_toolkits.basemap import Basemap
 from matplotlib import rc,rcParams
 from aacgmv2 import convert
 from scipy.interpolate import interp1d 
 from scipy.integrate import quad
+
 rc('text', usetex=False)
 rcParams['ytick.labelsize'],rcParams['xtick.labelsize'] = 17.,17.
 rcParams['axes.labelsize']=19.
@@ -17,8 +18,8 @@ rcParams['legend.fontsize']=17.
 rcParams['text.latex.preamble'] = ['\\usepackage{siunitx}']
 rcParams['figure.figsize'] = (11., 6)
 
-from os import system
-
+from os import system,chdir
+chdir("/home/user/space-apps-2017-mayday-athens/")
 system("wget 'http://legacy-www.swpc.noaa.gov/wingkp/wingkp_list.txt' -P Data/")
 system("wget 'http://services.swpc.noaa.gov/text/aurora-nowcast-map.txt' -P Data/ ")
 system("wget 'http://services.swpc.noaa.gov/text/goes-particle-flux-primary.txt' -P Data/")
