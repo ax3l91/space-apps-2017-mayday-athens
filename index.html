@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <head>
+<!-- JS visualization by Sotirios Panagiotou for Space Apps Challenge 2017 -->
         <meta http-equiv="X-UA-Compatible" content="chrome=1" />
 		<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 		<title>Aviat-ions: In-flight Irradiation Simulation</title>
-		<meta name="author" content="Daniel A. O'Neil">
-		<meta name="copyright" content="? Daniel A. O'Neil" />
+		<meta name="author" content="Aviat-ions Team - NASA Space Apps Challenge 2017">
+		<meta name="copyright" content="Aviat-ions Team - NASA Space Apps Challenge 2017" />
 	<style>
 	  p.case { clear: both; border-top: 0px; solid: #fff; }
 	</style>
@@ -83,7 +84,8 @@
 	<td>
 	<div style="position:relative;">
 	
-	<img src="./Images/aurora_map.png" height=300px style='text-align: center;'/>
+	<!--<img src="./Images/aurora_map.png" height=300px style='text-align: center;'/>-->
+	<img src="./ExportedImages/aurora.png" height=300px style='text-align: center;'/>
 	<!--<canvas id="under" width="500" height="350"></canvas>-->
 	<img src="./Images/plane_topview.png" style="position:absolute; visibility:hidden;" width="20px" height="20px" id="plane_topview"/>
 	
@@ -122,17 +124,6 @@
 	</tbody></table>
 
 	<script>
-/*
-
-5 mSv per year - 1 mSv per flight limits
-
-0.002 mSv/h
-
-http://edutechwiki.unige.ch/en/X3D_navigation_and_viewing
-
-*/
-//var mission = JSON.parse(trajectory) ;    // Parse the trajectory in the mission file.
-//var step = 0 ;
 
 colmap = [
 	{v: 0, c: hexToRgb("#240500")},
@@ -234,10 +225,6 @@ function startUpdate() {
 		app.appendChild(mat);
 		s.appendChild(app);
 		
-		//var segCoords = [mission.coordinates[segment].X/10000, mission.coordinates[segment].Y/10000, mission.coordinates[segment].Z/10000] ;
-		//var segCoords2 = [mission.coordinates[segment+1].X/10000, mission.coordinates[segment+1].Y/10000, mission.coordinates[segment+1].Z/10000] ;
-		// console.log("x  " + segCoords[0] + "  y  " + segCoords[1] + "  z  " + segCoords[2]) ;
-		//orbitCoords = orbitCoords + segCoords[0]  + " " + segCoords[1]  + " " + segCoords[2]  + " " ;
 		var segCoords = [p.x,p.y,p.z] ;
 		var segCoords2 = [p2.x,p2.y,p2.z] ;
 		var orbitCoords =  segCoords[0]  + " " + segCoords[1]  + " " + segCoords[2]  + " " + segCoords2[0]  + " " + segCoords2[1]  + " " + segCoords2[2]  + " " ;
@@ -274,7 +261,6 @@ function startUpdate() {
 		else radi_val = (rad/1000000).toFixed(2) + " Sv";
 		return radi_val;
 	}
-	
 	
 	var total_radiations = [
 		{rad: .1, desc: "a single pass from an airport scanner", shortdesc:"Airport scan"},
@@ -418,8 +404,6 @@ function FixupSVGWidgies(){
 	
 	//var radiation_path = radiation_graph_svg.getElementsByTagName('g')[0].getElementsByTagName('path')[0];
 	//console.log(radiation_path)
-	
-	
 }
 function lerpTrajectory(time){
 	var m = linedata;
@@ -533,8 +517,10 @@ function updateModelTime(time){
 	//lerped.lon = 0;
 	//lerped.lat = +70 * (Math.PI/180);
 	
-	var map_width = 375;
-	var map_height = 289;
+	var map_off_x = 14;
+	var map_off_y = 8;
+	var map_width = 373;
+	var map_height = 291;
 	
 	
 	var ll1 = lerpTrajectory(time - 0.05);
@@ -687,9 +673,6 @@ function updateDisplay(){
 function GlobeMouseOver(event){
 
 }
-
-
-
  
  //------> Auxiliars
 function colour_lerp_spline(val,colmap){
@@ -708,8 +691,6 @@ function colour_lerp_spline(val,colmap){
 		ret = {r: lerp(c1.r,c2.r,f), g: lerp(c1.g,c2.g,f), b: lerp(c1.b,c2.b,f)};
 	}
 	return ret;
-	var new_col = rgbToHex(ret.r,ret.g,ret.b);
-	return new_col;
 }
 //http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
 function hexToRgb(hex) {
