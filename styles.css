@@ -6,6 +6,7 @@
 #chart {
 	display: inline-block;
 	margin-left: 70px;
+	margin-top:0px;
 }
 #y_axis {
 	position: absolute;
@@ -46,3 +47,5 @@
 .goodnews {color: #16992E; }
 .badnews {color: #DB2A20;}
 .radiation {color: #FF5A19;}
+
+#comments {padding: 10px;}

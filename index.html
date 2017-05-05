@@ -9,6 +9,7 @@
 	<style>
 	  p.case { clear: both; border-top: 0px; solid: #fff; }
 	</style>
+	<link rel="icon" type="image/png" href="./Images/icon.png">
 	<link rel="stylesheet" type="text/css" href="./thirdparty/x3dom.css" />
 	<!-- <script src="http://10.2.110.232:8080/flightdata" type="text/javascript"></script> -->
 	<!--<script src="http://10.2.110.231:8080/api/getinfodata" type="text/javascript"></script> -->
@@ -25,7 +26,7 @@
 	<table><tbody>
 	<tr>
 	<td>
-	<h1 style="text-align:center; margin:0;">Web Visualization of Radiation Exposure in Flight</h1>
+	<h1 style="text-align:center; margin:0; font-family:Helvetica;">Web Visualization of Radiation Exposure in Flight</h1>
 	
 	</td>
 	</tr>
@@ -113,12 +114,26 @@
 	</div>
 	</td>
 	
-	<td>
+	<td style='position:relative;'>
+	<div style='position:relative; width:100%; height:100%;'>
 	<div id="comments">Calculating results...</div>
+	
+	</div>
+	<div style='position:absolute; bottom:20%; right:20px;' id='notelogo'>
+	<span style='font-family:Helvetica;'>Created by </span> <img src='./Images/aviations-transparent.png' style='height:20px;'/>
+	</div>
 	</td>
 	</tr>
 	</tbody></table>
-	
+	</td>
+	</tr>
+	<tr>
+	<td>
+	<h3 style='text-align:center; font-family:Helvetica; '>
+	Based on live data from <a href='http://www.swpc.noaa.gov/'>NOAA SWPC</a> (<a href='http://services.swpc.noaa.gov/text/aurora-nowcast-map.txt'>Aurora Probability Map</a>,
+		<a href='http://services.swpc.noaa.gov/text/goes-particle-flux-primary.txt'> GOES-13 Particle Flux </a>,
+	<a href='http://legacy-www.swpc.noaa.gov/wingkp/wingkp_list.txt'>Kp Geomagnetic Activity Index</a>)
+	</h3>
 	</td>
 	</tr>
 	</tbody></table>
@@ -174,6 +189,14 @@ sim_playback = {
 		this.playing = false;
 	}
 };
+
+function say_radiation(rad){
+	var radi_val;
+	if(rad < 1000) radi_val = rad.toFixed(3) + " μSv";
+	else if(rad < 1000*1000) radi_val = (rad/1000).toFixed(3) + " mSv";
+	else radi_val = (rad/1000000).toFixed(3) + " Sv";
+	return radi_val;
+}
 
 function startUpdate() {
 	//transform teh data
@@ -254,13 +277,7 @@ function startUpdate() {
 	var final_radiation = linedata[linedata.length - 1].rad_total * 1000000;
 	
 	//Add total radiation comment
-	function say_radiation(rad){
-		var radi_val;
-		if(rad < 1000) radi_val = rad.toFixed(2) + " μSv";
-		else if(rad < 1000*1000) radi_val = (rad/1000).toFixed(2) + " mSv";
-		else radi_val = (rad/1000000).toFixed(2) + " Sv";
-		return radi_val;
-	}
+	
 	
 	var total_radiations = [
 		{rad: .1, desc: "a single pass from an airport scanner", shortdesc:"Airport scan"},
@@ -333,7 +350,7 @@ function initGraph(){
 			},
 			{
 				name: limdes,
-				data: [{x:0, y:radiation_limit},{x: sim_playback.total_duration,y:radiation_limit}],
+				data: [{x:0, y:radiation_limit},{x: linedata[linedata.length -1].distance_total,y:radiation_limit}],
 				color: "rgba(204, 31, 0, .8)",
 				renderer: "line",
 				
@@ -352,7 +369,7 @@ function initGraph(){
 	var y_axis = new Rickshaw.Graph.Axis.Y( {
 		graph: radiation_graph,
 		orientation: 'left',
-		tickFormat: function(val){ return val.toFixed(1) + " μSv"},
+		tickFormat: function(val){ return val.toFixed(2) + " μSv"},
 		element: document.getElementById('y_axis'),
 	} );
 
@@ -377,7 +394,7 @@ function initGraph(){
 	var hoverDetail = new Rickshaw.Graph.HoverDetail( {
 		graph: radiation_graph	,
 		xFormatter: function(x) { return '<span class="date">' +  x.toFixed(0) + " km" + '</span>'},
-		yFormatter: function(y) { return y.toFixed(2) + " mSv" },
+		yFormatter: function(y) { return y.toFixed(2) + " μSv" },
 		
 	} );
 
